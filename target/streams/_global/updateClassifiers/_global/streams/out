@@ -1,4 +1,3 @@
 [debug] "not up to date. inChanged = true, force = false
-[debug] Updating ProjectRef(uri("file:/Users/vinniebrice/induction/play-template/"), "root")...
-[debug] Done updating ProjectRef(uri("file:/Users/vinniebrice/induction/play-template/"), "root")
-[warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
+[debug] Updating ProjectRef(uri("file:/Users/robyn.garlington/Documents/scalaTraining/googleBooks/play-template/"), "root")...
+[debug] Done updating ProjectRef(uri("file:/Users/robyn.garlington/Documents/scalaTraining/googleBooks/play-template/"), "root")
