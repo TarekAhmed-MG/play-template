@@ -1,1 +1,0 @@
-[0m[[0m[33mwarn[0m] [0m[0minsecure HTTP request is deprecated 'http://repo.typesafe.com/typesafe/releases/'; switch to HTTPS or opt-in as ("Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/").withAllowInsecureProtocol(true)[0m

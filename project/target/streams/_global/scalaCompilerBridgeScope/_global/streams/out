@@ -1,1 +1,0 @@
-[warn] insecure HTTP request is deprecated 'http://repo.typesafe.com/typesafe/releases/'; switch to HTTPS or opt-in as ("Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/").withAllowInsecureProtocol(true)
