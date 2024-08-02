@@ -1,14 +1,13 @@
 package controllers
 
 import baseSpec.{BaseSpec, BaseSpecWithApplication}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest}
 import play.api.http.Status
 import play.api.test.Helpers._
+import repositories.DataRepository
 
 class ApplicationControllerSpec extends BaseSpecWithApplication {
-  val TestApplicationController = new ApplicationController(
-    component
-  )
+  val TestApplicationController = new ApplicationController(component,repository)
 
   "ApplicationController .index()" should {
     val result = TestApplicationController.index()(FakeRequest()) // The FakeRequest() is needed to mimic an incoming HTTP request, the same as hitting the route in the browser.

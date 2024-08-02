@@ -1,12 +1,13 @@
 package controllers
 
 import play.api.mvc._
+import repositories.DataRepository
 
 import javax.inject._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationController @Inject()(val controllerComponents: ControllerComponents) extends BaseController{
+class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository)(implicit val ec: ExecutionContext) extends BaseController{
 
   // todo is a play feature that is a default package for actions that hasnt been completed yet
   def index(): Action[AnyContent] = Action.async{
