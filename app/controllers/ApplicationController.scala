@@ -7,6 +7,7 @@ import repositories.DataRepository
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository)(implicit val ec: ExecutionContext) extends BaseController{
@@ -29,7 +30,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   }
 
   def read(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(id).map(item => Ok{Json.toJson(item)}) // check this to give back a unable to find any books
+    dataRepository.read(id).map(item => Ok{Json.toJson(item)})// check this to give back a unable to find any books
   }
 
   def update(id:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -43,7 +44,5 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
     dataRepository.delete(id).map(_ => Accepted) // check this to give back a unable to delete
   }
-
-
 
 }
