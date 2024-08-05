@@ -13,6 +13,7 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpecWithApplication {
   val TestApplicationController = new ApplicationController(component,repository)
+  // create tests for bad requests too and make them pass errors so match error
 
   private val dataModel: DataModel = DataModel(
     "abcd",
