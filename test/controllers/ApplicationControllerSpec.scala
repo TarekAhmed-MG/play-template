@@ -2,13 +2,15 @@ package controllers
 
 import baseSpec.{BaseSpec, BaseSpecWithApplication}
 import models.DataModel
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.test.FakeRequest
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
+import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.Helpers._
 import repositories.DataRepository
 
+import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpecWithApplication {
@@ -94,6 +96,22 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
   }
 
+  "ApplicationController .Update(id:String) BadRequest" should {
+
+    beforeEach()
+
+    "update a book in the database by id" in {
+
+      val updateRequestBad = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson("badRequest"))
+      val updatedResult = TestApplicationController.update("abcd")(updateRequestBad)
+      status(updatedResult) shouldBe Status.BAD_REQUEST
+
+    }
+
+    afterEach()
+
+  }
+
   "ApplicationController .Delete(id:String)" should {
     beforeEach()
 
@@ -124,6 +142,23 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
       val createdResult: Future[Result] = TestApplicationController.create()(request)
 
       status(createdResult) shouldBe Status.CREATED
+    }
+
+    afterEach()
+
+  }
+
+  "ApplicationController .create() badRequest" should {
+
+    beforeEach()
+
+    "create a book in the database" in {
+
+      val request: FakeRequest[JsValue] = buildPost("/api").withBody[JsValue](Json.toJson("BadRequest"))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+
+      status(createdResult) shouldBe Status.BAD_REQUEST
     }
 
     afterEach()
