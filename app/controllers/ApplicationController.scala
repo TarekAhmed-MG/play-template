@@ -17,7 +17,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def index(): Action[AnyContent] = Action.async { implicit request =>
     dataRepository.index().map{
       case Right(item: Seq[DataModel]) => Ok {Json.toJson(item)}
-      case Left(error) => Status(error)(Json.toJson("Unable to find any books"))
+      case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
     }
   }
   // to see the sToDO page we need to add an app route that references to the new controller and method
@@ -47,8 +47,9 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   }
 
   def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
-    libraryService.getGoogleBook(search = search, term = term).map {
-      item => Ok{Json.toJson(item)}
+    libraryService.getGoogleBook(search = search, term = term).value.map {
+      case Right(book) =>  Ok {Json.toJson(book)} //Hint: This should be the same as before
+      case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
     }
   }
 

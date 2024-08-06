@@ -1,6 +1,6 @@
 package repositories
 
-import models.DataModel
+import models.{APIError, DataModel}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.empty
 import org.mongodb.scala.model._
@@ -32,10 +32,16 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // All of the return types of these functions are asynchronous futures.
 
-  def index(): Future[Either[Int, Seq[DataModel]]]  =
-    collection.find().toFuture().map{
+//  def index(): Future[Either[Int, Seq[DataModel]]]  =
+//    collection.find().toFuture().map{
+//      case books: Seq[DataModel] => Right(books)
+//      case _ => Left(404)
+//    }
+
+  def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]] =
+    collection.find().toFuture().map {
       case books: Seq[DataModel] => Right(books)
-      case _ => Left(404)
+      case _ => Left(APIError.BadAPIResponse(404, "Books cannot be found"))
     }
 
   // adds a DataModel object to the database
