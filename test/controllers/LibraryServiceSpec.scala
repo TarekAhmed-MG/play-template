@@ -3,6 +3,7 @@ package controllers
 import baseSpec.BaseSpec
 import cats.data.EitherT
 import connectors.LibraryConnector
+import models.APIError.BadAPIResponse
 import models.{APIError, DataModel}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -46,7 +47,7 @@ class LibraryServiceSpec extends BaseSpec with MockFactory with ScalaFutures wit
     "return a book" in {
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
-        .returning(EitherT.rightT[Future, APIError](gameOfThrones.as[JsValue]))
+        .returning(EitherT.rightT(gameOfThrones.as[JsValue]))
         .once()
 
       whenReady(testService.getGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result => // had to remove the .value
@@ -55,18 +56,18 @@ class LibraryServiceSpec extends BaseSpec with MockFactory with ScalaFutures wit
     }
   }
 
-//  "return an error" in {
-//    val url: String = "testUrl"
-//
-//    (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
-//      .expects(url, *, *)
-//      .returning(EitherT.leftT[Future,JsValue](APIError))// How do we return an error?
-//      .once()
-//
-//    whenReady(testService.getGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result =>
-//      result shouldBe APIError
-//    }
-//  }
+  "return an error" in {
+    val url: String = "testUrl"
+
+    (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+      .expects(url, *, *)
+      .returning(EitherT.leftT(APIError.BadAPIResponse(500, "Could not connect"))) // How do we return an error?
+      .once()
+
+    whenReady(testService.getGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result =>
+      result shouldBe Left(BadAPIResponse(500, "Could not connect"))
+    }
+  }
 
 
 

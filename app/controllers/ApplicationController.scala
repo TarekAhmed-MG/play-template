@@ -10,6 +10,7 @@ import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
+
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository, val libraryService: LibraryService)(implicit val ec: ExecutionContext) extends BaseController{
 

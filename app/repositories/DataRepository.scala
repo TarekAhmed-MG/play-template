@@ -57,17 +57,17 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     )
 
   // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
-  def read(id: String): Future[DataModel] =
-    collection.find(byID(id)).headOption flatMap {
-      case Some(data) => Future(data)
-    }
+//  def read(id: String): Future[DataModel] =
+//    collection.find(byID(id)).headOption flatMap {
+//      case Some(data) => Future(data)
+//    }
 
 //  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
-//  def read(id: String): Future[Option[DataModel]] =
-//    collection.find(byID(id)).headOption flatMap {
-//      case Some(data) => Future(Some(data))
-//      case None => Future(None)
-//    }
+  def read(id: String): Future[Option[DataModel]] =
+    collection.find(byID(id)).headOption flatMap {
+      case Some(data) => Future(Some(data))
+      case None => Future(None)
+    }
 
   // takes in a DataModel, finds a matching document with the same id and updates the document. It then returns the updated DataModel
   def update(id: String, book: DataModel): Future[result.UpdateResult] =
