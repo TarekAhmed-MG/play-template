@@ -31,9 +31,17 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+//  def read(id:String): Action[AnyContent] = Action.async{implicit request =>
+//    dataRepository.read(id).map(item => Ok{Json.toJson(item)})// check this to give back a unable to find any books
+//  }
+
   def read(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(id).map(item => Ok{Json.toJson(item)})// check this to give back a unable to find any books
+    dataRepository.read(id).map{
+      case Some(item: DataModel) => Ok{Json.toJson((item))}
+      case None => Status(404)(Json.toJson("Unable to find any books"))
+    }
   }
+
 
   def update(id:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {

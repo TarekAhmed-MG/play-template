@@ -56,13 +56,13 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
       Filters.equal("_id", id)
     )
 
-  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
+//  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
 //  def read(id: String): Future[DataModel] =
 //    collection.find(byID(id)).headOption flatMap {
 //      case Some(data) => Future(data)
 //    }
 
-//  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
+  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
   def read(id: String): Future[Option[DataModel]] =
     collection.find(byID(id)).headOption flatMap {
       case Some(data) => Future(Some(data))

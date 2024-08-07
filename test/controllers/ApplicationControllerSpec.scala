@@ -61,6 +61,29 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
   }
 
+  "ApplicationController.Read(wrongId:String)" should {
+
+    beforeEach()
+
+    "return Unable to find any books when given wrong id " in {
+
+      val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+      //Hint: You could use status(createdResult) shouldBe Status.CREATED to check this has worked again
+      status(createdResult) shouldBe Status.CREATED
+
+      val readResult: Future[Result] = TestApplicationController.read("sas")(FakeRequest())
+
+      status(readResult) shouldBe 404
+      contentAsJson(readResult).as[JsValue] shouldBe Json.toJson("Unable to find any books")
+
+    }
+
+    afterEach()
+
+  }
+
   "ApplicationController .Update(id:String)" should {
 
     beforeEach()
