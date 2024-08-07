@@ -155,6 +155,28 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
   }
 
+
+  "ApplicationController.Delete(wrongId:String)" should {
+    beforeEach()
+
+    "return 404 unable to delete book when given and id of a book that doesn't exist" in {
+
+      val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+      //Hint: You could use status(createdResult) shouldBe Status.CREATED to check this has worked again
+      status(createdResult) shouldBe Status.CREATED
+
+      val deletedResult = TestApplicationController.delete("sass")(request)
+      status(deletedResult) shouldBe 404
+      contentAsJson(deletedResult).as[JsValue] shouldBe Json.toJson("Unable to Delete Book")
+
+    }
+
+    afterEach()
+
+  }
+
   "ApplicationController .create()" should {
 
     beforeEach()

@@ -37,11 +37,10 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   def read(id:String): Action[AnyContent] = Action.async{implicit request =>
     dataRepository.read(id).map{
-      case Some(item: DataModel) => Ok{Json.toJson((item))}
+      case Some(item: DataModel) => Ok{Json.toJson(item)}
       case None => Status(404)(Json.toJson("Unable to find any books"))
     }
   }
-
 
   def update(id:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
@@ -51,9 +50,19 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+//  def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
+//    dataRepository.delete(id).map(_ => Accepted) // check this to give back a unable to delete
+//  }
+
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.delete(id).map(_ => Accepted) // check this to give back a unable to delete
+    dataRepository.read(id).map{
+      case Some(item: DataModel) =>
+        dataRepository.delete(item._id)
+        Status(ACCEPTED)
+      case None => Status(404)(Json.toJson("Unable to Delete Book"))
+    }
   }
+
 
   def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
     libraryService.getGoogleBook(search = search, term = term).value.map {
