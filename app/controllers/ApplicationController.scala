@@ -55,7 +55,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 //  }
 
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(id).map{
+    dataRepository.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
       case Some(item: DataModel) =>
         dataRepository.delete(item._id)
         Status(ACCEPTED)

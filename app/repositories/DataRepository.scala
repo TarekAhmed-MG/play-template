@@ -70,12 +70,17 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     }
 
   // takes in a DataModel, finds a matching document with the same id and updates the document. It then returns the updated DataModel
-  def update(id: String, book: DataModel): Future[result.UpdateResult] =
-    collection.replaceOne(
-      filter = byIDorName(id),
-      replacement = book,
-      options = new ReplaceOptions().upsert(true) //What happens when we set this to false?
-    ).toFuture()
+//  def update(id: String, book: DataModel): Future[result.UpdateResult] =
+//    collection.replaceOne(
+//      filter = byIDorName(id),
+//      replacement = book,
+//      options = new ReplaceOptions().upsert(true) //What happens when we set this to false?
+//    ).toFuture()
+
+  // create a filter Bson method that filters with the field
+
+  def update(id: String,fieldName:String, change:String): Future[result.UpdateResult] =
+    collection.updateOne(filter = byIDorName(id), update=byIDorName(id)).toFuture() // need to change the update to take in BSON fields
 
   // deletes a document in the database that matches the id passed in
   def delete(id: String): Future[result.DeleteResult] =
