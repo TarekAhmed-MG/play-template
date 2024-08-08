@@ -82,7 +82,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
   def update(id: String,fieldName:String, change:String): Future[result.UpdateResult] =
     collection.updateOne(filter = byIDorName(id), update=byIDorName(id)).toFuture() // need to change the update to take in BSON fields
 
-  // deletes a document in the database that matches the id passed in
+  // deletes a document in the database that matches the id passed
   def delete(id: String): Future[result.DeleteResult] =
     collection.deleteOne(
       filter = byIDorName(id)
