@@ -35,10 +35,10 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 //    dataRepository.read(id).map(item => Ok{Json.toJson(item)})// check this to give back a unable to find any books
 //  }
 
-  def read(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(id).map{
+  def read(idOrName:String): Action[AnyContent] = Action.async{implicit request =>
+    dataRepository.read(idOrName).map{
       case Some(item: DataModel) => Ok{Json.toJson(item)}
-      case None => Status(404)(Json.toJson("Unable to find any books"))
+      case None => Status(NOT_FOUND)(Json.toJson("Unable to find any books"))
     }
   }
 

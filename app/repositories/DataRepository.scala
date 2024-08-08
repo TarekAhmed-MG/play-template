@@ -51,20 +51,20 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
       .toFuture()
       .map(_ => book)
 
-  private def byID(id: String): Bson =
-    Filters.and(
-      Filters.equal("_id", id)
+  private def byIDorName(idOrName: String): Bson =
+    Filters.or(
+      Filters.equal("_id", idOrName), Filters.equal("name", idOrName)
     )
 
 //  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
 //  def read(id: String): Future[DataModel] =
-//    collection.find(byID(id)).headOption flatMap {
+//    collection.find(byIDorName(id)).headOption flatMap {
 //      case Some(data) => Future(data)
 //    }
 
   // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
   def read(id: String): Future[Option[DataModel]] =
-    collection.find(byID(id)).headOption flatMap {
+    collection.find(byIDorName(id)).headOption flatMap {
       case Some(data) => Future(Some(data))
       case None => Future(None)
     }
@@ -72,7 +72,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
   // takes in a DataModel, finds a matching document with the same id and updates the document. It then returns the updated DataModel
   def update(id: String, book: DataModel): Future[result.UpdateResult] =
     collection.replaceOne(
-      filter = byID(id),
+      filter = byIDorName(id),
       replacement = book,
       options = new ReplaceOptions().upsert(true) //What happens when we set this to false?
     ).toFuture()
@@ -80,7 +80,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
   // deletes a document in the database that matches the id passed in
   def delete(id: String): Future[result.DeleteResult] =
     collection.deleteOne(
-      filter = byID(id)
+      filter = byIDorName(id)
     ).toFuture()
 
   // is similar to delete, this removes all data from Mongo with the same collection name
