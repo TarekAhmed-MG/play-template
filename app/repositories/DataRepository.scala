@@ -1,8 +1,10 @@
 package repositories
 
 import models.{APIError, DataModel}
+import org.mongodb.scala.bson.BsonObjectId
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.empty
+import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model._
 import org.mongodb.scala.result
 import uk.gov.hmrc.mongo.MongoComponent
@@ -79,10 +81,20 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // create a filter Bson method that filters with the field
 
-  def update(id: String,fieldName:String, change:String): Future[result.UpdateResult] =
-    collection.updateOne(filter = byIDorName(id), update=byIDorName(id)).toFuture() // need to change the update to take in BSON fields
 
-  // deletes a document in the database that matches the id passed
+  def update(id: String,fieldName:String, book:DataModel): Future[result.UpdateResult] = {
+
+    val change = fieldName match {
+      case "_id" => book._id
+      case "name" => book.name
+      case "description" => book.description
+      case "pageCount" => book.pageCount
+    }
+
+    collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture() // need to change the update to take in BS
+  }
+
+  // deletes a document in the database that matches the id passed in
   def delete(id: String): Future[result.DeleteResult] =
     collection.deleteOne(
       filter = byIDorName(id)

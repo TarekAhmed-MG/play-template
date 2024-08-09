@@ -117,10 +117,11 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
     val updateDataModel: DataModel = DataModel(
       "abcd",
-      "test name",
+      "just checking if one item changed",
       "test description",
-      200
+      100
     )
+
 
     "update a book in the database by id" in {
 
@@ -132,7 +133,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
 
       val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModel))
-      val updatedResult = TestApplicationController.update("abcd")(updateRequest)
+      val updatedResult = TestApplicationController.update("abcd","name")(updateRequest)
       status(updatedResult) shouldBe Status.ACCEPTED
 
 
@@ -152,8 +153,8 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
     "update a book in the database by id" in {
 
-      val updateRequestBad = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson("badRequest"))
-      val updatedResult = TestApplicationController.update("abcd")(updateRequestBad)
+      val updateRequestBad = buildGet("/api/${dataModel._id}/${fieldName}").withBody[JsValue](Json.toJson("badRequest"))
+      val updatedResult = TestApplicationController.update("abcd","name")(updateRequestBad)
       status(updatedResult) shouldBe Status.BAD_REQUEST
 
     }

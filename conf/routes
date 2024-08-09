@@ -5,10 +5,9 @@ GET     /                           controllers.HomeController.index()
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 GET     /api     controllers.ApplicationController.index()
 POST    /api/create controllers.ApplicationController.create()
-GET     /api/read/:id controllers.ApplicationController.read(idOrName)
-PUT     /api/update/:id controllers.ApplicationController.update(id)
+GET     /api/read/:idOrName controllers.ApplicationController.read(idOrName)
+PUT     /api/update/:id/:fieldName controllers.ApplicationController.update(id: String, fieldName: String)
 DELETE  /api/delete/:id controllers.ApplicationController.delete(id)
-
 GET     /library/google/:search/:term      controllers.ApplicationController.getGoogleBook(search: String, term: String)
 
 
