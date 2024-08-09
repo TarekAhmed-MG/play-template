@@ -115,15 +115,22 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
     beforeEach()
 
-    val updateDataModel: DataModel = DataModel(
+    val updateDataModelName: DataModel = DataModel(
       "abcd",
       "just checking if one item changed",
       "test description",
       100
     )
 
+    val updateDataModelPageCount: DataModel = DataModel(
+      "abcd",
+      "test name",
+      "test description",
+      300
+    )
 
-    "update a book in the database by id" in {
+
+    "update the name of the book in the database by id and name" in {
 
       val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
       val createdResult: Future[Result] = TestApplicationController.create()(request)
@@ -132,8 +139,28 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
       status(createdResult) shouldBe Status.CREATED
 
 
-      val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModel))
+      val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModelName))
       val updatedResult = TestApplicationController.update("abcd","name")(updateRequest)
+      status(updatedResult) shouldBe Status.ACCEPTED
+
+
+      val readResult: Future[Result] = TestApplicationController.read("abcd")(FakeRequest())
+      status(readResult) shouldBe Status.OK
+      contentAsJson(readResult).as[JsValue] shouldBe updateRequest.body
+
+    }
+
+    "update the page count in the database by id and pageCount" in {
+
+      val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+      //Hint: You could use status(createdResult) shouldBe Status.CREATED to check this has worked again
+      status(createdResult) shouldBe Status.CREATED
+
+
+      val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModelPageCount))
+      val updatedResult = TestApplicationController.update("abcd","pageCount")(updateRequest)
       status(updatedResult) shouldBe Status.ACCEPTED
 
 
