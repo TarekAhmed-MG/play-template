@@ -4,7 +4,7 @@ import models.DataModel
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import repositories.DataRepository
-import services.LibraryService
+import services.{LibraryService, RepositoryService}
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
@@ -12,7 +12,7 @@ import scala.util.Try
 
 
 @Singleton
-class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository, val libraryService: LibraryService)(implicit val ec: ExecutionContext) extends BaseController{
+class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository, val libraryService: LibraryService, val repositoryService: RepositoryService)(implicit val ec: ExecutionContext) extends BaseController{
 
   // todo is a play feature that is a default package for actions that hasnt been completed yet
   def index(): Action[AnyContent] = Action.async { implicit request =>
