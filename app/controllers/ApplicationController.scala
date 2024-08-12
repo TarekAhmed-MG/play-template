@@ -12,13 +12,20 @@ import scala.util.Try
 
 
 @Singleton
-class ApplicationController @Inject()(val controllerComponents: ControllerComponents, val dataRepository: DataRepository, val libraryService: LibraryService, val repositoryService: RepositoryService)(implicit val ec: ExecutionContext) extends BaseController{
+class ApplicationController @Inject()(
+                                       val controllerComponents: ControllerComponents,
+                                       val dataRepository: DataRepository, // usually dont need a repository injection in the controller but will leave it here for the example
+                                       val libraryService: LibraryService,
+                                       val repositoryService: RepositoryService
+                                     )
+                                     (implicit val ec: ExecutionContext)
+  extends BaseController{
 
   // todo is a play feature that is a default package for actions that hasnt been completed yet
   def index(): Action[AnyContent] = Action.async { implicit request =>
-    dataRepository.index().map{
+    repositoryService.index().map{
       case Right(item: Seq[DataModel]) => Ok {Json.toJson(item)}
-      case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
+      case Left(_) => Status(NOT_FOUND)(Json.toJson("Unable to find any books"))
     }
   }
   // to see the sToDO page we need to add an app route that references to the new controller and method
@@ -26,7 +33,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-        dataRepository.create(dataModel).map(_ => Created)
+        repositoryService.create(dataModel).map(_ => Created)
       case JsError(_) => Future(BadRequest)
     }
   }
@@ -36,7 +43,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 //  }
 
   def read(idOrName:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(idOrName).map{
+    repositoryService.read(idOrName).map{
       case Some(item: DataModel) => Ok{Json.toJson(item)}
       case None => Status(NOT_FOUND)(Json.toJson("Unable to find any books"))
     }
@@ -53,7 +60,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def update(id:String, fieldName:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-        dataRepository.update(id,fieldName,dataModel).map(_ => Accepted)
+        repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
       case JsError(_) => Future(BadRequest)
     }
   }
@@ -63,14 +70,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 //  }
 
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-    dataRepository.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
+    repositoryService.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
       case Some(item: DataModel) =>
-        dataRepository.delete(item._id)
+        repositoryService.delete(item._id)
         Status(ACCEPTED)
       case None => Status(404)(Json.toJson("Unable to Delete Book"))
     }
   }
-
 
   def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
     libraryService.getGoogleBook(search = search, term = term).value.map {
