@@ -8,7 +8,7 @@ import org.mongodb.scala.model.Filters.empty
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model._
 import org.mongodb.scala.result
-import org.mongodb.scala.result.{DeleteResult, UpdateResult}
+import org.mongodb.scala.result.{DeleteResult, InsertOneResult, UpdateResult}
 import play.api.libs.json.OFormat
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.mongo.MongoComponent
@@ -45,16 +45,22 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 //    }
 
   def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]] =
-    collection.find().toFuture().map {
+    collection.find().toFuture().map{
       case books: Seq[DataModel] => Right(books)
       case _ => Left(APIError.BadAPIResponse(404, "Books cannot be found"))
     }
 
+//  def create(book: DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = {
+  //      Right(collection.insertOne(book).toFuture().map(_ => book)).orElse(Left(APIError.BadAPIResponse(500, "Could not connect")))
+  //  }
 
-  def create(book: DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = {
-      Right(collection.insertOne(book).toFuture().map(_ => book)).orElse(Left(APIError.BadAPIResponse(500, "Could not connect")))
-  }
-
+  def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]] =
+    collection.insertOne(book).toFuture().map{ createdResult =>
+      if (createdResult.wasAcknowledged())
+        Right(createdResult)
+      else
+        Left(APIError.BadAPIResponse(500, "Could not Create Book"))
+    }
 
   private def byIDorName(idOrName: String): Bson =
     Filters.or(

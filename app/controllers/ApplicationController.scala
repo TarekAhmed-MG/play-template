@@ -36,10 +36,9 @@ class ApplicationController @Inject()(
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
 //       repositoryService.create(dataModel).map(_ => Created)
-
-        repositoryService.create(dataModel:DataModel) match {
-          case Right(_) => Future.successful(Created)
-          case Left(apiError) => Future.successful(Status(apiError.upstreamStatus)(apiError.upstreamMessage))
+        repositoryService.create(dataModel:DataModel).map {
+          case Right(_) => Status(CREATED)
+          case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
         }
       case JsError(_) => Future(BadRequest)
     }
@@ -59,8 +58,7 @@ class ApplicationController @Inject()(
   def update(id:String, fieldName:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-        //repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
-        repositoryService.update(id,fieldName,dataModel).map {
+        repositoryService.update(id,fieldName,dataModel).map{
           case Right(_) => Status(ACCEPTED)
           case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
         }
