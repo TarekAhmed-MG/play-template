@@ -107,10 +107,6 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
   }
 
-
-
-
-
   "ApplicationController .Update(id:String)" should {
 
     beforeEach()
@@ -170,6 +166,21 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
     }
 
+    "ApplicationController .Update(id:String) wrong id should return 404 " in {
+
+      val request: FakeRequest[JsValue] = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(dataModel))
+      val createdResult: Future[Result] = TestApplicationController.create()(request)
+
+      //Hint: You could use status(createdResult) shouldBe Status.CREATED to check this has worked again
+      status(createdResult) shouldBe Status.CREATED
+
+      val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModelPageCount))
+      val updatedResult = TestApplicationController.update("sass","pageCount")(updateRequest)
+      status(updatedResult) shouldBe 404
+      contentAsJson(updatedResult).as[JsValue] shouldBe Json.toJson("Unable to Update Book")
+
+    }
+
     afterEach()
 
   }
@@ -183,7 +194,6 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
       val updateRequestBad = buildGet("/api/${dataModel._id}/${fieldName}").withBody[JsValue](Json.toJson("badRequest"))
       val updatedResult = TestApplicationController.update("abcd","name")(updateRequestBad)
       status(updatedResult) shouldBe Status.BAD_REQUEST
-
     }
 
     afterEach()
@@ -209,7 +219,6 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
     afterEach()
 
   }
-
 
   "ApplicationController.Delete(wrongId:String)" should {
     beforeEach()

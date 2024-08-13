@@ -30,12 +30,10 @@ class ApplicationController @Inject()(
       case Left(_) => Status(NOT_FOUND)(Json.toJson("Unable to find any books"))
     }
   }
-  // to see the sToDO page we need to add an app route that references to the new controller and method
 
   def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-//       repositoryService.create(dataModel).map(_ => Created)
         repositoryService.create(dataModel:DataModel).map {
           case Right(_) => Status(CREATED)
           case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
@@ -44,14 +42,10 @@ class ApplicationController @Inject()(
     }
   }
 
-//  def read(id:String): Action[AnyContent] = Action.async{implicit request =>
-//    dataRepository.read(id).map(item => Ok{Json.toJson(item)})// check this to give back a unable to find any books
-//  }
-
   def read(idOrName:String): Action[AnyContent] = Action.async{implicit request =>
     repositoryService.read(idOrName).map{
-      case Some(item: DataModel) => Ok{Json.toJson(item)}
-      case None => Status(NOT_FOUND)(Json.toJson("Unable to find any books"))
+      case Right(Some(item: DataModel)) => Ok{Json.toJson(item)}
+      case Left(apiError) => Status(apiError.upstreamStatus)(Json.toJson(apiError.upstreamMessage))
     }
   }
 
@@ -60,7 +54,7 @@ class ApplicationController @Inject()(
       case JsSuccess(dataModel, _) =>
         repositoryService.update(id,fieldName,dataModel).map{
           case Right(_) => Status(ACCEPTED)
-          case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
+          case Left(apiError) => Status(apiError.upstreamStatus)(Json.toJson(apiError.upstreamMessage))
         }
       case JsError(_) => Future(BadRequest)
     }
@@ -69,7 +63,7 @@ class ApplicationController @Inject()(
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
     repositoryService.delete(id).map{
       case Right(_) => Status(ACCEPTED)
-      case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
+      case Left(apiError) => Status(apiError.upstreamStatus)(Json.toJson(apiError.upstreamMessage))
     }
   }
 

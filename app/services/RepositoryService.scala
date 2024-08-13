@@ -14,7 +14,7 @@ class RepositoryService @Inject()(val dataRepository: DataRepository){
 
   def create(book:DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]] = dataRepository.create(book)
 
-  def read(id:String): Future[Option[DataModel]] = dataRepository.read(id)
+  def read(id:String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]] = dataRepository.read(id)
 
   def update(id:String,fieldName:String,book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] = dataRepository.update(id,fieldName,book)
 

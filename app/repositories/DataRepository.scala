@@ -38,12 +38,6 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // All of the return types of these functions are asynchronous futures.
 
-//  def index(): Future[Either[Int, Seq[DataModel]]]  =
-//    collection.find().toFuture().map{
-//      case books: Seq[DataModel] => Right(books)
-//      case _ => Left(404)
-//    }
-
   def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]] =
     collection.find().toFuture().map{
       case books: Seq[DataModel] => Right(books)
@@ -51,8 +45,6 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     }
 
 //  def create(book: DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = {
-  //      Right(collection.insertOne(book).toFuture().map(_ => book)).orElse(Left(APIError.BadAPIResponse(500, "Could not connect")))
-  //  }
 
   def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]] =
     collection.insertOne(book).toFuture().map{ createdResult =>
@@ -67,40 +59,15 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
       Filters.equal("_id", idOrName), Filters.equal("name", idOrName)
     )
 
-//  // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
-//  def read(id: String): Future[DataModel] =
-//    collection.find(byIDorName(id)).headOption flatMap {
-//      case Some(data) => Future(data)
-//    }
-
   // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
-  def read(id: String): Future[Option[DataModel]] =
+
+  def read(id: String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]] =
     collection.find(byIDorName(id)).headOption flatMap {
-      case Some(data) => Future(Some(data))
-      case None => Future(None)
+      case Some(data) => Future(Right(Some(data)))
+      case None => Future(Left(APIError.BadAPIResponse(404, "Unable to find any books")))
     }
 
   // takes in a DataModel, finds a matching document with the same id and updates the document. It then returns the updated DataModel
-//  def update(id: String, book: DataModel): Future[result.UpdateResult] =
-//    collection.replaceOne(
-//      filter = byIDorName(id),
-//      replacement = book,
-//      options = new ReplaceOptions().upsert(true) //What happens when we set this to false?
-//    ).toFuture()
-
-  // create a filter Bson method that filters with the field
-
-//  def update(id: String,fieldName:String, book:DataModel): Either[APIError.BadAPIResponse, Future[UpdateResult]] = {
-//
-//    val change = fieldName match {
-//      case "_id" => book._id
-//      case "name" => book.name
-//      case "description" => book.description
-//      case "pageCount" => book.pageCount
-//    }
-//
-//    Right(collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture()).orElse(Left(APIError.BadAPIResponse(404, "Unable to Update Book"))) // need to change the update to take in BS
-//  }
 
   def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] = {
 
