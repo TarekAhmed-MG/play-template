@@ -69,8 +69,4 @@ class LibraryServiceSpec extends BaseSpec with MockFactory with ScalaFutures wit
     }
   }
 
-
-
-
-
 }

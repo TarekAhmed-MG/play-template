@@ -1,10 +1,8 @@
 package services
 
-import cats.data.EitherT
 import models.{APIError, DataModel}
 import org.mongodb.scala.result.{DeleteResult, InsertOneResult, UpdateResult}
 import repositories.DataRepository
-
 import javax.inject.Inject
 import scala.concurrent.Future
 

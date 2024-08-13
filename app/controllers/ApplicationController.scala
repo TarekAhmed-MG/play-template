@@ -1,7 +1,5 @@
 package controllers
 
-import cats.data.EitherT
-import models.APIError.BadAPIResponse
 import models.DataModel
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
