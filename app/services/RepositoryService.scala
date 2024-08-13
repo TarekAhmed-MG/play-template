@@ -1,5 +1,6 @@
 package services
 
+import cats.data.EitherT
 import models.{APIError, DataModel}
 import org.mongodb.scala.result.{DeleteResult, UpdateResult}
 import repositories.DataRepository
@@ -11,7 +12,7 @@ class RepositoryService @Inject()(val dataRepository: DataRepository){
 
   def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]] = dataRepository.index()
 
-  def create(book:DataModel): Future[DataModel] = dataRepository.create(book)
+  def create(book:DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = dataRepository.create(book)
 
   def read(id:String): Future[Option[DataModel]] = dataRepository.read(id)
 

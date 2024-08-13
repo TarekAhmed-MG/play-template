@@ -1,5 +1,7 @@
 package controllers
 
+import cats.data.EitherT
+import models.APIError.BadAPIResponse
 import models.DataModel
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -33,7 +35,12 @@ class ApplicationController @Inject()(
   def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-        repositoryService.create(dataModel).map(_ => Created)
+//       repositoryService.create(dataModel).map(_ => Created)
+
+        repositoryService.create(dataModel:DataModel) match {
+          case Right(_) => Future.successful(Created)
+          case Left(apiError) => Future.successful(Status(500)("Could not connect"))
+        }
       case JsError(_) => Future(BadRequest)
     }
   }

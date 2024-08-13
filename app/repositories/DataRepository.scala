@@ -1,5 +1,6 @@
 package repositories
 
+import cats.data.EitherT
 import models.{APIError, DataModel}
 import org.mongodb.scala.bson.BsonObjectId
 import org.mongodb.scala.bson.conversions.Bson
@@ -7,6 +8,8 @@ import org.mongodb.scala.model.Filters.empty
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model._
 import org.mongodb.scala.result
+import play.api.libs.json.OFormat
+import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -47,11 +50,26 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     }
 
   // adds a DataModel object to the database
-  def create(book: DataModel): Future[DataModel] = //
-    collection
-      .insertOne(book)
-      .toFuture()
-      .map(_ => book)
+//  def create(book: DataModel): Future[DataModel] = //
+//    collection.insertOne(book).toFuture().map(_ => book)
+
+//  def create(book: DataModel): EitherT[Future, APIError.BadAPIResponse, DataModel] = {
+//
+//    val response = collection.insertOne(book).toFuture()
+//
+//    EitherT{
+//      response.map{
+//        _ => Right(book)
+//      }.recover{
+//        case _ => Left(APIError.BadAPIResponse(500, "Could not connect"))
+//      }
+//    }
+//  }
+
+  def create(book: DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = {
+      Right(collection.insertOne(book).toFuture().map(_ => book)).orElse(Left(APIError.BadAPIResponse(500, "Could not connect")))
+  }
+
 
   private def byIDorName(idOrName: String): Bson =
     Filters.or(
@@ -80,7 +98,6 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 //    ).toFuture()
 
   // create a filter Bson method that filters with the field
-
 
   def update(id: String,fieldName:String, book:DataModel): Future[result.UpdateResult] = {
 
