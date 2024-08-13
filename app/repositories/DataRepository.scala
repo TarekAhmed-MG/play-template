@@ -84,7 +84,19 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // create a filter Bson method that filters with the field
 
-  def update(id: String,fieldName:String, book:DataModel): Either[APIError.BadAPIResponse, Future[UpdateResult]] = {
+//  def update(id: String,fieldName:String, book:DataModel): Either[APIError.BadAPIResponse, Future[UpdateResult]] = {
+//
+//    val change = fieldName match {
+//      case "_id" => book._id
+//      case "name" => book.name
+//      case "description" => book.description
+//      case "pageCount" => book.pageCount
+//    }
+//
+//    Right(collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture()).orElse(Left(APIError.BadAPIResponse(404, "Unable to Update Book"))) // need to change the update to take in BS
+//  }
+
+  def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] = {
 
     val change = fieldName match {
       case "_id" => book._id
@@ -92,13 +104,16 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
       case "description" => book.description
       case "pageCount" => book.pageCount
     }
-
-    Right(collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture()).orElse(Left(APIError.BadAPIResponse(404, "Unable to Update Book"))) // need to change the update to take in BS
+    collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture().map{
+      updatedResult =>
+        if (updatedResult.getMatchedCount != 0)
+          Right(updatedResult)
+        else
+          Left(APIError.BadAPIResponse(404, "Unable to Update Book"))
+    }
   }
 
 //  // deletes a document in the database that matches the id passed in
-//  def delete(id: String): Future[result.DeleteResult] =
-//    collection.deleteOne(filter = byIDorName(id)).toFuture()
 
   def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]] =
     collection.deleteOne(filter = byIDorName(id)).toFuture().map{

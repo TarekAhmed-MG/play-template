@@ -56,42 +56,21 @@ class ApplicationController @Inject()(
     }
   }
 
-//  def update(id:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
-//    request.body.validate[DataModel] match {
-//      case JsSuccess(dataModel, _) =>
-//        dataRepository.update(id,dataModel).map(_ => Accepted)
-//      case JsError(_) => Future(BadRequest)
-//    }
-//  }
-
   def update(id:String, fieldName:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
         //repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
-        repositoryService.update(id,fieldName,dataModel) match {
-          case Right(_) => Future.successful(Accepted)
-          case Left(apiError) => Future.successful(Status(apiError.upstreamStatus)(apiError.upstreamMessage))
+        repositoryService.update(id,fieldName,dataModel).map {
+          case Right(_) => Status(ACCEPTED)
+          case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
         }
       case JsError(_) => Future(BadRequest)
     }
   }
 
-//  def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-//    dataRepository.delete(id).map(_ => Accepted) // check this to give back a unable to delete
-//  }
-
-//  def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-//    repositoryService.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
-//      case Some(item: DataModel) =>
-//        repositoryService.delete(item._id)
-//        Status(ACCEPTED)
-//      case None => Status(404)(Json.toJson("Unable to Delete Book"))
-//    }
-//  }
-
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
     repositoryService.delete(id).map{
-      case Right(result) => Status(ACCEPTED)
+      case Right(_) => Status(ACCEPTED)
       case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
     }
   }
