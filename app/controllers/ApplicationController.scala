@@ -39,7 +39,7 @@ class ApplicationController @Inject()(
 
         repositoryService.create(dataModel:DataModel) match {
           case Right(_) => Future.successful(Created)
-          case Left(apiError) => Future.successful(Status(500)("Could not connect"))
+          case Left(apiError) => Future.successful(Status(apiError.httpResponseStatus)("Could not create data model"))
         }
       case JsError(_) => Future(BadRequest)
     }
@@ -67,7 +67,11 @@ class ApplicationController @Inject()(
   def update(id:String, fieldName:String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(dataModel, _) =>
-        repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
+        //repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
+        repositoryService.update(id,fieldName,dataModel) match {
+          case Right(_) => Future.successful(Accepted)
+          case Left(apiError) => Future.successful(Status(apiError.httpResponseStatus)("Could not update data model"))
+        }
       case JsError(_) => Future(BadRequest)
     }
   }
