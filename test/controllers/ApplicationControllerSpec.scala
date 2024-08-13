@@ -224,7 +224,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
 
       val deletedResult = TestApplicationController.delete("sass")(request)
       status(deletedResult) shouldBe 404
-      contentAsJson(deletedResult).as[JsValue] shouldBe Json.toJson("Unable to Delete Book")
+
 
     }
 

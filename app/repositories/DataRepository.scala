@@ -8,7 +8,7 @@ import org.mongodb.scala.model.Filters.empty
 import org.mongodb.scala.model.Updates.set
 import org.mongodb.scala.model._
 import org.mongodb.scala.result
-import org.mongodb.scala.result.UpdateResult
+import org.mongodb.scala.result.{DeleteResult, UpdateResult}
 import play.api.libs.json.OFormat
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.mongo.MongoComponent
@@ -93,12 +93,21 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
       case "pageCount" => book.pageCount
     }
 
-    Right(collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture()).orElse(Left(APIError.BadAPIResponse(500, "Could not connect"))) // need to change the update to take in BS
+    Right(collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture()).orElse(Left(APIError.BadAPIResponse(404, "Unable to Update Book"))) // need to change the update to take in BS
   }
 
-  // deletes a document in the database that matches the id passed in
-  def delete(id: String): Future[result.DeleteResult] =
-    collection.deleteOne(filter = byIDorName(id)).toFuture()
+//  // deletes a document in the database that matches the id passed in
+//  def delete(id: String): Future[result.DeleteResult] =
+//    collection.deleteOne(filter = byIDorName(id)).toFuture()
+
+  def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]] =
+    collection.deleteOne(filter = byIDorName(id)).toFuture().map{
+      deletedResult =>
+        if (deletedResult.getDeletedCount != 0)
+          Right(deletedResult)
+        else
+          Left(APIError.BadAPIResponse(404, "Unable to Delete Book"))
+    }
 
   // is similar to delete, this removes all data from Mongo with the same collection name
   def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ()) //Hint: needed for tests

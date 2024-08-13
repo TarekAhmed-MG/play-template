@@ -39,7 +39,7 @@ class ApplicationController @Inject()(
 
         repositoryService.create(dataModel:DataModel) match {
           case Right(_) => Future.successful(Created)
-          case Left(apiError) => Future.successful(Status(apiError.httpResponseStatus)("Could not create data model"))
+          case Left(apiError) => Future.successful(Status(apiError.upstreamStatus)(apiError.upstreamMessage))
         }
       case JsError(_) => Future(BadRequest)
     }
@@ -70,7 +70,7 @@ class ApplicationController @Inject()(
         //repositoryService.update(id,fieldName,dataModel).map(_ => Accepted)
         repositoryService.update(id,fieldName,dataModel) match {
           case Right(_) => Future.successful(Accepted)
-          case Left(apiError) => Future.successful(Status(apiError.httpResponseStatus)("Could not update data model"))
+          case Left(apiError) => Future.successful(Status(apiError.upstreamStatus)(apiError.upstreamMessage))
         }
       case JsError(_) => Future(BadRequest)
     }
@@ -80,12 +80,19 @@ class ApplicationController @Inject()(
 //    dataRepository.delete(id).map(_ => Accepted) // check this to give back a unable to delete
 //  }
 
+//  def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
+//    repositoryService.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
+//      case Some(item: DataModel) =>
+//        repositoryService.delete(item._id)
+//        Status(ACCEPTED)
+//      case None => Status(404)(Json.toJson("Unable to Delete Book"))
+//    }
+//  }
+
   def delete(id:String): Action[AnyContent] = Action.async{implicit request =>
-    repositoryService.read(id).map{ // look into using a BSON Filter.exists() method to check if its in the database https://www.baeldung.com/java-mongodb-filters instead of having to use the read method.
-      case Some(item: DataModel) =>
-        repositoryService.delete(item._id)
-        Status(ACCEPTED)
-      case None => Status(404)(Json.toJson("Unable to Delete Book"))
+    repositoryService.delete(id).map{
+      case Right(result) => Status(ACCEPTED)
+      case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
     }
   }
 
