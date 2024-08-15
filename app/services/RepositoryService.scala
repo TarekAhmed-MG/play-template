@@ -7,7 +7,7 @@ import repositories.{DataRepository, dataRepositoryTrait}
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class RepositoryService @Inject()(val dataRepository: DataRepository){
+class RepositoryService @Inject()(val dataRepository: dataRepositoryTrait){
 
   def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]] = dataRepository.index()
 
