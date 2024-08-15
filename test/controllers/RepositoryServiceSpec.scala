@@ -19,7 +19,7 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
   //val mockRepository: DataRepository = mock[DataRepository](mongoComponent)
   val mockDataRepositoryTrait: dataRepositoryTrait = mock[dataRepositoryTrait]
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  //val testService = new RepositoryService(mockDataRepositoryTrait)
+  val testService = new RepositoryService(mockDataRepositoryTrait)
 
   private val dataModel: DataModel = DataModel(
     "abcd",
