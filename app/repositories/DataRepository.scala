@@ -1,6 +1,7 @@
 package repositories
 
 import cats.data.EitherT
+import com.google.inject.ImplementedBy
 import models.{APIError, DataModel}
 import org.mongodb.scala.bson.BsonObjectId
 import org.mongodb.scala.bson.conversions.Bson
@@ -25,6 +26,17 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param mongoComponent
  * @param ec
  */
+
+@ImplementedBy(classOf[DataRepository])
+trait dataRepositoryTrait {
+
+  def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]]
+  def read(id: String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]]
+  def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]]
+  def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]]
+
+}
+
 @Singleton
 class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) extends PlayMongoRepository[DataModel](
   collectionName = "dataModels", // "dataModels" is the name of the collection (you can set this to whatever you like).
@@ -34,7 +46,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     Indexes.ascending("_id")
   )),
   replaceIndexes = false
-) {
+) with dataRepositoryTrait {
 
   // All of the return types of these functions are asynchronous futures.
 
@@ -46,7 +58,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
 //  def create(book: DataModel): Either[APIError.BadAPIResponse, Future[DataModel]] = {
 
-  def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]] =
+  override def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]] =
     collection.insertOne(book).toFuture().map{ createdResult =>
       if (createdResult.wasAcknowledged())
         Right(createdResult)
@@ -61,7 +73,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
 
-  def read(id: String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]] =
+  override def read(id: String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]] =
     collection.find(byIDorName(id)).headOption flatMap {
       case Some(data) => Future(Right(Some(data)))
       case None => Future(Left(APIError.BadAPIResponse(404, "Unable to find any books")))
@@ -69,7 +81,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   // takes in a DataModel, finds a matching document with the same id and updates the document. It then returns the updated DataModel
 
-  def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] = {
+  override def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] = {
 
     val change = fieldName match {
       case "_id" => book._id
@@ -88,7 +100,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
 //  // deletes a document in the database that matches the id passed in
 
-  def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]] =
+  override def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]] =
     collection.deleteOne(filter = byIDorName(id)).toFuture().map{
       deletedResult =>
         if (deletedResult.getDeletedCount != 0)
@@ -101,3 +113,4 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
   def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ()) //Hint: needed for tests
 
 }
+

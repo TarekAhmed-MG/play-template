@@ -2,7 +2,8 @@ package services
 
 import models.{APIError, DataModel}
 import org.mongodb.scala.result.{DeleteResult, InsertOneResult, UpdateResult}
-import repositories.DataRepository
+import repositories.{DataRepository, dataRepositoryTrait}
+
 import javax.inject.Inject
 import scala.concurrent.Future
 

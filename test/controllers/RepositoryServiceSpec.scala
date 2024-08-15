@@ -1,15 +1,26 @@
 package controllers
 
 import baseSpec.BaseSpec
-import models.DataModel
+import models.{APIError, DataModel}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status.CREATED
+import play.api.mvc.Results.Status
+import repositories.{DataRepository, dataRepositoryTrait}
 import services.RepositoryService
+import uk.gov.hmrc.mongo.MongoComponent
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures with GuiceOneAppPerSuite{
 
-  val mockRepositoryService: RepositoryService = mock[RepositoryService]
+  val mongoComponent: MongoComponent = app.injector.instanceOf[MongoComponent]
+  //val mockRepository: DataRepository = mock[DataRepository](mongoComponent)
+  val mockDataRepositoryTrait: dataRepositoryTrait = mock[dataRepositoryTrait]
+  implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  //val testService = new RepositoryService(mockDataRepositoryTrait)
+
   private val dataModel: DataModel = DataModel(
     "abcd",
     "test name",
@@ -28,6 +39,16 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
     }
 
     "Create() should return result" in {
+
+//
+//      val createBookModel = testService.create(dataModel).map {
+//        case Right(_) => Status(CREATED)
+//        case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
+//      }
+//
+//      whenReady(createBookModel) { result =>
+//        result shouldBe Status(CREATED)
+//      }
 
     }
 
