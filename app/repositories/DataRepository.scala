@@ -30,10 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[DataRepository])
 trait dataRepositoryTrait {
 
+  def index(): Future[Either[APIError.BadAPIResponse, Seq[DataModel]]]
   def create(book: DataModel): Future[Either[APIError.BadAPIResponse, InsertOneResult]]
   def read(id: String): Future[Either[APIError.BadAPIResponse, Some[DataModel]]]
   def update(id: String,fieldName:String, book:DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]]
   def delete(id: String): Future[Either[APIError.BadAPIResponse, DeleteResult]]
+  def deleteAll(): Future[Unit]
 
 }
 
