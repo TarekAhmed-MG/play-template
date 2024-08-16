@@ -63,7 +63,6 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
       }
     }
 
-
     "Create() should return result" in {
 
       val testObject = BsonObjectId(new ObjectId())
