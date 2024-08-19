@@ -18,6 +18,9 @@ class LibraryService @Inject()(connector: LibraryConnector) {
    * @param ec
    * @return
    */
-  def getGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, GoogleApi]=
-    connector.get[GoogleApi](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search%$term"))
+//  def getGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, GoogleApi]=
+//    connector.get[GoogleApi](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search%$term"))
+
+  def getGoogleBook(urlOverride: Option[String] = None, search: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, GoogleApi]=
+    connector.get[GoogleApi](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search"))
 }

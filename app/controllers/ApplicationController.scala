@@ -65,8 +65,15 @@ class ApplicationController @Inject()(
     }
   }
 
-  def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
-    libraryService.getGoogleBook(search = search, term = term).value.map {
+//  def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
+//    libraryService.getGoogleBook(search = search, term = term).value.map {
+//      case Right(book) =>  Ok {Json.toJson(book)} //Hint: This should be the same as before
+//      case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
+//    }
+//  }
+
+  def getGoogleBook(search: String): Action[AnyContent] = Action.async { implicit request =>
+    libraryService.getGoogleBook(search = search).value.map {
       case Right(book) =>  Ok {Json.toJson(book)} //Hint: This should be the same as before
       case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
     }
