@@ -87,7 +87,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
     val change = fieldName match {
       case "_id" => book._id
-      case "name" => book.name
+      case "title" => book.name
       case "description" => book.description
       case "pageCount" => book.pageCount
     }
