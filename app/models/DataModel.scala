@@ -2,21 +2,6 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Items(items:Seq[GoogleApi]){
-}
-
-case class GoogleApi(
-                      id:String,
-                      volumeInfo:VolumeInfo
-                    ){
-  val dataModel: DataModel = DataModel(id, volumeInfo.title, volumeInfo.description, volumeInfo.pageCount)
-}
-
-case class VolumeInfo(
-                       title: String,
-                       description: Option[String],
-                       pageCount: Option[Int]
-                     )
 
 case class DataModel(
                       _id: String,
@@ -24,18 +9,6 @@ case class DataModel(
                       description: Option[String],
                       pageCount: Option[Int]
                     )
-
-object Items{
-  implicit val formatsItems: OFormat[Items] = Json.format[Items]
-}
-
-object GoogleApi{
-  implicit val formatsGoogleApi: OFormat[GoogleApi] = Json.format[GoogleApi]
-}
-
-object VolumeInfo{
-  implicit val formatsVolumeInfo: OFormat[VolumeInfo] = Json.format[VolumeInfo]
-}
 
 // companion object
 object DataModel{ // This allows for easily transforming the model to and from JSON.
