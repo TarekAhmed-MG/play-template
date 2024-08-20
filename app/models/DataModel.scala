@@ -5,18 +5,18 @@ import play.api.libs.json.{Json, OFormat}
 case class Items(items:Seq[GoogleApi]){
 }
 
-case class VolumeInfo(
-                       title: String,
-                       description: Option[String],
-                       pageCount: Option[Int]
-                     )
-
 case class GoogleApi(
                       id:String,
                       volumeInfo:VolumeInfo
                     ){
   val dataModel: DataModel = DataModel(id, volumeInfo.title, volumeInfo.description, volumeInfo.pageCount)
 }
+
+case class VolumeInfo(
+                       title: String,
+                       description: Option[String],
+                       pageCount: Option[Int]
+                     )
 
 case class DataModel(
                       _id: String,
