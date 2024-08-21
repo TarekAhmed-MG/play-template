@@ -70,7 +70,7 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
 
   private def byIDorName(idOrName: String): Bson =
     Filters.or(
-      Filters.equal("_id", idOrName), Filters.equal("name", idOrName)
+      Filters.equal("_id", idOrName), Filters.equal("title", idOrName)
     )
 
   // retrieves a DataModel object from the database. It uses an id parameter to find the data its looking for
@@ -88,8 +88,8 @@ class DataRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: Exec
     val change = fieldName match {
       case "_id" => book._id
       case "title" => book.title
-      case "description" => book.description
-      case "pageCount" => book.pageCount
+      case "description" => book.description.get
+      case "pageCount" => book.pageCount.get
     }
     collection.updateOne(filter = byIDorName(id), update=set(fieldName, change)).toFuture().map{
       updatedResult =>

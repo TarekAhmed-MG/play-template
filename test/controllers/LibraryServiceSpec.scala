@@ -11,6 +11,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.test.Helpers.status
+import repositories.DataRepository
 import services.LibraryService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,7 +51,7 @@ class LibraryServiceSpec extends BaseSpec with MockFactory with ScalaFutures wit
         .returning(EitherT.rightT(gameOfThrones.as[JsValue]))
         .once()
 
-      whenReady(testService.getGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result => // had to remove the .value
+      whenReady(testService.testGetGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result => // had to remove the .value
         result shouldBe Right(gameOfThrones)
       }
     }
@@ -64,7 +65,7 @@ class LibraryServiceSpec extends BaseSpec with MockFactory with ScalaFutures wit
       .returning(EitherT.leftT(APIError.BadAPIResponse(500, "Could not connect"))) // How do we return an error?
       .once()
 
-    whenReady(testService.getGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result =>
+    whenReady(testService.testGetGoogleBook(urlOverride = Some(url), search = "", term = "").value) { result =>
       result shouldBe Left(BadAPIResponse(500, "Could not connect"))
     }
   }

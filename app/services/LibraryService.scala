@@ -10,7 +10,7 @@ import java.awt.print.Book
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LibraryService @Inject()(connector: LibraryConnector,val dataRepositoryTrait: dataRepositoryTrait) {
+class LibraryService @Inject()(connector: LibraryConnector) {
 
   /**
    * @param urlOverride
@@ -26,6 +26,9 @@ class LibraryService @Inject()(connector: LibraryConnector,val dataRepositoryTra
         items.items.headOption.get
       }
   }
+
+  def testGetGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext):EitherT[Future, APIError, DataModel] =
+    connector.get[DataModel](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search%$term"))
 
   //example call http://localhost:9000/library/google/isbn/1452140907
 
