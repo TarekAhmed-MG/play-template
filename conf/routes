@@ -10,3 +10,6 @@ PUT     /api/update/:id/:fieldName controllers.ApplicationController.update(id: 
 DELETE  /api/delete/:id controllers.ApplicationController.delete(id)
 GET     /library/google/:search/:term      controllers.ApplicationController.getGoogleBook(search: String, term: String)
 #GET     /library/google/:search      controllers.ApplicationController.getGoogleBook(search: String)
+GET     /example                           controllers.ApplicationController.example()
+GET     /addbook/form     controllers.ApplicationController.addDataModel()
+POST     /addbook/form     controllers.ApplicationController.addDataModelForm()

@@ -1,0 +1,17 @@
+@import models.DataModel
+@import helper._
+
+@(dataModelForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
+
+@main("Add DataModel"){
+    <div>
+    @helper.form(action = routes.ApplicationController.addDataModelForm()) {
+        @helper.CSRF.formField
+        @helper.inputText(dataModelForm("_id"))
+        @helper.inputText(dataModelForm("title"))
+        @helper.inputText(dataModelForm("description"))
+        @helper.inputText(dataModelForm("pageCount"))
+        <input class="submitButton" type="submit" value="Submit">
+        }
+    </div>
+}
