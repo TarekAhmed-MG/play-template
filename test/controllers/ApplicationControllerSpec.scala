@@ -213,7 +213,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
     afterEach()
   }
 
-  "ApplicationController .create() badRequest" should {
+  "ApplicationController .addDataModelForm() badRequest" should {
     beforeEach()
     "return a error message" in {
       val request= buildPost("/api")
