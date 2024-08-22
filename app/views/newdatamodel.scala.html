@@ -4,6 +4,7 @@
 @(dataModelForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
 
 @main("Add DataModel"){
+    <h1>Google Book Api Project</h1>
     <div>
     @helper.form(action = routes.ApplicationController.addDataModelForm()) {
         @helper.CSRF.formField
