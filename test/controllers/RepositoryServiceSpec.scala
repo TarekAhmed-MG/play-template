@@ -32,8 +32,8 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
   private val dataModel: DataModel = DataModel(
     "abcd",
     "test name",
-    "test description",
-    100
+    Some("test description"),
+    Some(100)
   )
 
   "Repository Service CRUD functions" should {

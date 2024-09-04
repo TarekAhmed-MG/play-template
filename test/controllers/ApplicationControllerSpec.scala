@@ -7,11 +7,13 @@ import play.api.test.FakeRequest
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, Result}
+import play.api.test.CSRFTokenHelper.CSRFFRequestHeader
 import play.api.test.Helpers._
 import repositories.DataRepository
-
+import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.Future
+import play.api.mvc._
 
 class ApplicationControllerSpec extends BaseSpecWithApplication {
   val TestApplicationController = new ApplicationController(component,repository,service,repoService)
@@ -20,8 +22,8 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
   private val dataModel: DataModel = DataModel(
     "abcd",
     "test name",
-    "test description",
-    100
+    Option("test description"),
+    Option(100)
   )
 
   "ApplicationController .index()" should {
@@ -80,14 +82,14 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
     val updateDataModelName: DataModel = DataModel(
       "abcd",
       "just checking if one item changed",
-      "test description",
-      100
+      Option("test description"),
+      Option(100)
     )
     val updateDataModelPageCount: DataModel = DataModel(
       "abcd",
       "test name",
-      "test description",
-      300
+      Option("test description"),
+      Option(300)
     )
 
     "update the name of the book in the database by id and name" in {
@@ -96,7 +98,7 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
       status(createdResult) shouldBe Status.CREATED
 
       val updateRequest = buildGet("/api/${dataModel._id}").withBody[JsValue](Json.toJson(updateDataModelName))
-      val updatedResult = TestApplicationController.update("abcd","name")(updateRequest)
+      val updatedResult = TestApplicationController.update("abcd","title")(updateRequest)
       status(updatedResult) shouldBe Status.ACCEPTED
 
       val readResult: Future[Result] = TestApplicationController.read("abcd")(FakeRequest())
@@ -182,6 +184,46 @@ class ApplicationControllerSpec extends BaseSpecWithApplication {
     "create a book in the database" in {
       val request: FakeRequest[JsValue] = buildPost("/api").withBody[JsValue](Json.toJson("BadRequest"))
       val createdResult: Future[Result] = TestApplicationController.create()(request)
+      status(createdResult) shouldBe Status.BAD_REQUEST
+    }
+    afterEach()
+  }
+
+//----------
+
+  "ApplicationController .addDataModelForm()" should {
+    beforeEach()
+
+    val formData = DataModel("someId", "Title", Some("Description"), Some(100))
+
+    "create a book from a form in the database" in {
+      val request= buildPost("/api")
+        .withFormUrlEncodedBody(
+        "_id" -> formData._id,
+        "title" -> formData.title,
+        "description" -> Some("Description").getOrElse(""),
+        "pageCount" ->  Some(100).getOrElse("").toString
+      )
+      //.withCSRFToken some reason i cant put this before the .withFormUrlEncodedBody()
+
+      val createdResult = TestApplicationController.addDataModelForm()(request)
+
+      status(createdResult) shouldBe Status.CREATED
+    }
+    afterEach()
+  }
+
+  "ApplicationController .addDataModelForm() badRequest" should {
+    beforeEach()
+    "return a error message" in {
+      val request= buildPost("/api")
+        .withFormUrlEncodedBody(
+          "_id" -> "",
+          "pageCount" ->  ""
+        )
+      //.withCSRFToken some reason i cant put this before the .withFormUrlEncodedBody()
+
+      val createdResult = TestApplicationController.addDataModelForm()(request)
       status(createdResult) shouldBe Status.BAD_REQUEST
     }
     afterEach()

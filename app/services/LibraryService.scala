@@ -4,6 +4,7 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import connectors.LibraryConnector
 import models.{APIError, DataModel, GoogleApi, Items}
+import repositories.dataRepositoryTrait
 
 import java.awt.print.Book
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,11 +20,15 @@ class LibraryService @Inject()(connector: LibraryConnector) {
    * @return
    */
 
-  def getGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext): EitherT[Future, APIError,GoogleApi]=
+  def getGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, GoogleApi] = {
     connector.get[Items](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search%$term"))
       .map { items =>
         items.items.headOption.get
       }
+  }
+
+  def testGetGoogleBook(urlOverride: Option[String] = None, search: String, term: String)(implicit ec: ExecutionContext):EitherT[Future, APIError, DataModel] =
+    connector.get[DataModel](urlOverride.getOrElse(s"https://www.googleapis.com/books/v1/volumes?q=$search%$term"))
 
   //example call http://localhost:9000/library/google/isbn/1452140907
 

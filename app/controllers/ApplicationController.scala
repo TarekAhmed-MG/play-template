@@ -1,8 +1,10 @@
 package controllers
 
-import models.DataModel
+import models.{APIError, DataModel}
+import models.DataModel.dataModelForm
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
+import play.filters.csrf.CSRF
 import repositories.DataRepository
 import services.{LibraryService, RepositoryService}
 
@@ -19,7 +21,7 @@ class ApplicationController @Inject()(
                                        val repositoryService: RepositoryService
                                      )
                                      (implicit val ec: ExecutionContext)
-  extends BaseController{
+  extends BaseController with play.api.i18n.I18nSupport{
 
   // todo is a play feature that is a default package for actions that hasnt been completed yet
   def index(): Action[AnyContent] = Action.async { implicit request =>
@@ -67,16 +69,39 @@ class ApplicationController @Inject()(
 
   def getGoogleBook(search: String, term: String): Action[AnyContent] = Action.async { implicit request =>
     libraryService.getGoogleBook(search = search, term = term).value.map {
-      case Right(book) =>  Ok {Json.toJson(book.dataModel)} //Hint: This should be the same as before
+      case Right(book) =>  Ok {Json.toJson(book.dataModel)}
       case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
     }
   }
 
-//  def getGoogleBook(search: String): Action[AnyContent] = Action.async { implicit request =>
-//    libraryService.getGoogleBook(search = search).value.map {
-//      case Right(book) =>  Ok {Json.toJson(book.dataModel)} //Hint: This should be the same as before
-//      case Left(_) => Status(404)(Json.toJson("Unable to find any books"))
-//    }
-//  }
+  def example(): Action[AnyContent] = Action.async {implicit request =>
+    Future.successful(Ok(views.html.example()))
+  }
 
+  def accessToken(implicit request: Request[_]) = {
+    CSRF.getToken
+  }
+
+  def addDataModel(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.newdatamodel(DataModel.dataModelForm)))
+  }
+
+  def addDataModelForm(): Action[AnyContent] =  Action.async { implicit request =>
+    accessToken //call the accessToken method
+    dataModelForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
+      formWithErrors => {
+        //here write what you want to do if the form has errors
+        Future.successful(Status(BAD_REQUEST))
+      },
+      formData => {
+        //here write how you would use this data to create a new book (DataModel)
+        repositoryService.create(formData).map{
+          case Right(_) => Status(CREATED)
+          case Left(apiError) => Status(apiError.upstreamStatus)(apiError.upstreamMessage)
+        }
+      }
+    )
+  }
 }
+
+
